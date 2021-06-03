@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <!--
+        Added the constraints for entity PracticeSession.
+    -->
+
+    <changeSet id="2" author="jhipster">
+
+       <addColumn tableName="book_mark_action">
+           <column type="bigint" name="user_id"/>
+       </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="varchar(255)" name="account_type"/>
+        </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="bigint" name="valid_until"/>
+        </addColumn>
+
+    </changeSet>
+    <changeSet id="20210527104701-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="book_mark_action"
+                                 constraintName="fk_book_mark_action_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+    </changeSet>
+</databaseChangeLog>
