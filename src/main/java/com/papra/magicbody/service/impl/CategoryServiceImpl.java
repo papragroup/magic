@@ -10,15 +10,13 @@ import com.papra.magicbody.service.CategoryService;
 import com.papra.magicbody.service.MinioServiceUtil;
 import com.papra.magicbody.service.dto.CategoryDTO;
 import com.papra.magicbody.service.mapper.CategoryMapper;
-
+import io.minio.errors.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.function.Function;
-
-import io.minio.errors.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -44,7 +42,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final MinioServiceUtil minioServiceUtil;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper, UserRepository userRepository, MinioServiceUtil minioServiceUtil) {
+    public CategoryServiceImpl(
+        CategoryRepository categoryRepository,
+        CategoryMapper categoryMapper,
+        UserRepository userRepository,
+        MinioServiceUtil minioServiceUtil
+    ) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
         this.userRepository = userRepository;
@@ -59,6 +62,8 @@ public class CategoryServiceImpl implements CategoryService {
         String photoUrl = minioServiceUtil.uploadFileToMinio(category.getPhoto());
         category.setPhotoUrl(photoUrl);
         category.setVoiceUrl(voiceUrl);
+        category.setPhoto(null);
+        category.setVoiceFile(null);
         category = categoryRepository.save(category);
         return categoryMapper.toDto(category);
     }
@@ -84,16 +89,25 @@ public class CategoryServiceImpl implements CategoryService {
     public Page<CategoryDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Categories");
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get();
-        return categoryRepository.findAll(pageable).map((c->{
-            CategoryDTO categoryDTO = categoryMapper.toDto(c);
-            if (user.getAccountType().equals(AccountType.SILVER)){
-                categoryDTO.setLock(Boolean.FALSE);
-            }
-            else if (categoryDTO.getId().equals(1l) || categoryDTO.getId().equals(2l)){
-                categoryDTO.setLock(Boolean.FALSE);
-            }
-            return categoryDTO;
-        }));
+        return categoryRepository
+            .findAll(pageable)
+            .map(
+                (
+                    c -> {
+                        CategoryDTO categoryDTO = categoryMapper.toDto(c);
+                        if (user.getAccountType().equals(AccountType.SILVER)) {
+                            categoryDTO.setLock(Boolean.FALSE);
+                        } else if (categoryDTO.getId().equals(1l) || categoryDTO.getId().equals(2l)) {
+                            categoryDTO.setLock(Boolean.FALSE);
+                        }
+                        categoryDTO.setPhotoUrl(minioServiceUtil.getLink(c.getPhotoUrl()));
+                        categoryDTO.setVoiceUrl(minioServiceUtil.getLink(c.getVoiceUrl()));
+                        categoryDTO.setPhoto(null);
+                        categoryDTO.setVoiceFile(null);
+                        return categoryDTO;
+                    }
+                )
+            );
     }
 
     @Override
@@ -104,10 +118,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     private Function<Category, CategoryDTO> getToDto() {
-        return c-> {
-           CategoryDTO categoryDTO= categoryMapper.toDto(c);
+        return c -> {
+            CategoryDTO categoryDTO = categoryMapper.toDto(c);
             categoryDTO.setPhotoUrl(minioServiceUtil.getLink(c.getPhotoUrl()));
             categoryDTO.setVoiceUrl(minioServiceUtil.getLink(c.getVoiceUrl()));
+            categoryDTO.setVoiceFile(null);
+            categoryDTO.setPhoto(null);
             return categoryDTO;
         };
     }

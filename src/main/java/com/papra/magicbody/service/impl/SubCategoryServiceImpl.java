@@ -8,7 +8,6 @@ import com.papra.magicbody.service.dto.SubCategoryDTO;
 import com.papra.magicbody.service.mapper.SubCategoryMapper;
 import java.util.Optional;
 import java.util.function.Function;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -30,8 +29,11 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     private final SubCategoryMapper subCategoryMapper;
     private final MinioServiceUtil minioServiceUtil;
 
-
-    public SubCategoryServiceImpl(SubCategoryRepository subCategoryRepository, SubCategoryMapper subCategoryMapper, MinioServiceUtil minioServiceUtil) {
+    public SubCategoryServiceImpl(
+        SubCategoryRepository subCategoryRepository,
+        SubCategoryMapper subCategoryMapper,
+        MinioServiceUtil minioServiceUtil
+    ) {
         this.subCategoryRepository = subCategoryRepository;
         this.subCategoryMapper = subCategoryMapper;
         this.minioServiceUtil = minioServiceUtil;
@@ -42,6 +44,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         log.debug("Request to save SubCategory : {}", subCategoryDTO);
         SubCategory subCategory = subCategoryMapper.toEntity(subCategoryDTO);
         subCategory.setPhotoUrl(minioServiceUtil.uploadFileToMinio(subCategoryDTO.getPhoto()));
+        subCategory.setPhoto(null);
+        subCategory.setVoiceUrl(null);
         subCategory.setVoiceUrl(minioServiceUtil.uploadFileToMinio(subCategoryDTO.getVoiceFile()));
         subCategory = subCategoryRepository.save(subCategory);
         return subCategoryMapper.toDto(subCategory);
@@ -78,12 +82,14 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     }
 
     private Function<SubCategory, SubCategoryDTO> getToDto() {
-        return (s)-> {
-            SubCategoryDTO subCategoryDTO= subCategoryMapper.toDto(s);
+        return s -> {
+            SubCategoryDTO subCategoryDTO = subCategoryMapper.toDto(s);
             subCategoryDTO.setPhotoUrl(minioServiceUtil.getLink(s.getPhotoUrl()));
             subCategoryDTO.setVoiceUrl(minioServiceUtil.getLink(s.getVoiceUrl()));
+            subCategoryDTO.setVoiceFile(null);
+            subCategoryDTO.setPhoto(null);
             return subCategoryDTO;
-         };
+        };
     }
 
     @Override

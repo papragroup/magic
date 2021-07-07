@@ -1,7 +1,9 @@
 package com.papra.magicbody.service.dto;
 
+import com.papra.magicbody.domain.SubCategory;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.mail.Session;
 import javax.persistence.Lob;
 import javax.validation.constraints.*;
 
@@ -13,6 +15,8 @@ public class ActionDTO implements Serializable {
     private Long id;
 
     private String title;
+
+    private Long bookMarkId;
 
     private String photoUrl;
 
@@ -31,7 +35,36 @@ public class ActionDTO implements Serializable {
 
     private String masterDescription;
 
+    private SubCategoryDTO subCategory;
 
+    private PracticeSessionDTO session;
+
+    public Long getBookMarkId() {
+        return bookMarkId;
+    }
+
+    public ActionDTO setBookMarkId(Long bookMarkId) {
+        this.bookMarkId = bookMarkId;
+        return this;
+    }
+
+    public PracticeSessionDTO getSession() {
+        return session;
+    }
+
+    public ActionDTO setSession(PracticeSessionDTO session) {
+        this.session = session;
+        return this;
+    }
+
+    public SubCategoryDTO getSubCategory() {
+        return subCategory;
+    }
+
+    public ActionDTO setSubCategory(SubCategoryDTO subCategory) {
+        this.subCategory = subCategory;
+        return this;
+    }
 
     public Long getId() {
         return id;
@@ -112,7 +145,6 @@ public class ActionDTO implements Serializable {
     public void setMasterDescription(String masterDescription) {
         this.masterDescription = masterDescription;
     }
-
 
     @Override
     public boolean equals(Object o) {

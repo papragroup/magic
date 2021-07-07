@@ -7,7 +7,7 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link SubCategory} and its DTO {@link SubCategoryDTO}.
  */
-@Mapper(componentModel = "spring", uses = { CategoryMapper.class })
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = { CategoryMapper.class })
 public interface SubCategoryMapper extends EntityMapper<SubCategoryDTO, SubCategory> {
     @Mapping(target = "category", source = "category", qualifiedByName = "id")
     SubCategoryDTO toDto(SubCategory s);

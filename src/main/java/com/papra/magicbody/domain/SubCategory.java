@@ -2,6 +2,8 @@ package com.papra.magicbody.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 
 /**
@@ -49,6 +51,19 @@ public class SubCategory implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "subcategories", "actions" }, allowSetters = true)
     private Category category;
+
+    @OneToMany(mappedBy = "subCategory")
+    @JsonIgnoreProperties(value = { "action", "category", "session" }, allowSetters = true)
+    private Set<Action> actions = new HashSet<>();
+
+    public Set<Action> getActions() {
+        return actions;
+    }
+
+    public SubCategory setActions(Set<Action> actions) {
+        this.actions = actions;
+        return this;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {

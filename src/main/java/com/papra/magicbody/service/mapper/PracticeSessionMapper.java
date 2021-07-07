@@ -7,7 +7,7 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link PracticeSession} and its DTO {@link PracticeSessionDTO}.
  */
-@Mapper(componentModel = "spring", uses = { PracticeMapper.class })
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = { PracticeMapper.class })
 public interface PracticeSessionMapper extends EntityMapper<PracticeSessionDTO, PracticeSession> {
     @Mapping(target = "practice", source = "practice", qualifiedByName = "id")
     PracticeSessionDTO toDto(PracticeSession s);

@@ -158,6 +158,26 @@ public class ActionResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/actions/search")
+    public ResponseEntity<List<ActionDTO>> getAllActionsSearch(@RequestParam String searchParam) {
+        log.debug("REST request to get a page of Actions");
+        return ResponseEntity.ok().body(actionService.findAllByCode(searchParam));
+    }
+
+    /**
+     * {@code GET  /actions} : get all the actions.
+     *
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of actions in body.
+     */
+    @GetMapping("/actions/sub-category/{sub-category}")
+    public ResponseEntity<List<ActionDTO>> getAllActionsSubCategory(Pageable pageable, @PathVariable("sub-category") Long subCategoryId) {
+        log.debug("REST request to get a page of Actions");
+        Page<ActionDTO> page = actionService.findAllBySubCategoryId(subCategoryId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
     /**
      * {@code GET  /actions/:id} : get the "id" action.
      *

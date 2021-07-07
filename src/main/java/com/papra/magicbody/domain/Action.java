@@ -56,8 +56,21 @@ public class Action implements Serializable {
     private Category category;
 
     @ManyToOne
+    @JsonIgnoreProperties(value = { "subcategories", "actions" }, allowSetters = true)
+    private SubCategory subCategory;
+
+    @ManyToOne
     @JsonIgnoreProperties(value = { "actions", "practice" }, allowSetters = true)
     private PracticeSession session;
+
+    public SubCategory getSubCategory() {
+        return subCategory;
+    }
+
+    public Action setSubCategory(SubCategory subCategory) {
+        this.subCategory = subCategory;
+        return this;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {

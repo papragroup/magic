@@ -7,6 +7,7 @@ import com.papra.magicbody.security.AuthoritiesConstants;
 import com.papra.magicbody.service.MailService;
 import com.papra.magicbody.service.UserService;
 import com.papra.magicbody.service.dto.AdminUserDTO;
+import com.papra.magicbody.service.dto.ProfileDTO;
 import com.papra.magicbody.web.rest.errors.BadRequestAlertException;
 import com.papra.magicbody.web.rest.errors.EmailAlreadyUsedException;
 import com.papra.magicbody.web.rest.errors.LoginAlreadyUsedException;
@@ -177,6 +178,11 @@ public class UserResource {
     public ResponseEntity<AdminUserDTO> getUser(@PathVariable @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to get User : {}", login);
         return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
+    }
+
+    @GetMapping("/user/profile")
+    public ResponseEntity<ProfileDTO> getUserProfile() {
+        return ResponseUtil.wrapOrNotFound(Optional.of(new ProfileDTO()));
     }
 
     /**

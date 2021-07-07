@@ -7,7 +7,7 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link Category} and its DTO {@link CategoryDTO}.
  */
-@Mapper(componentModel = "spring", uses = {})
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = {})
 public interface CategoryMapper extends EntityMapper<CategoryDTO, Category> {
     @Named("id")
     @BeanMapping(ignoreByDefault = true)

@@ -90,14 +90,92 @@ public class User extends AbstractAuditingEntity implements Serializable {
     private Set<Authority> authorities = new HashSet<>();
 
     @Enumerated(value = EnumType.STRING)
-    private AccountType accountType=AccountType.FREE;
+    private AccountType accountType = AccountType.FREE;
 
+    @Column(name = "valid_until")
     private Long validUntil;
+
+    private Long startFrom;
+
+    @Enumerated(value = EnumType.STRING)
+    private Gender gender;
+
+    private String phoneNumber;
+
+    private City city;
+
+    private Long dateOfBirth;
+
+    private Integer height;
+
+    private String sportExperience;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties(value = { "action" }, allowSetters = true)
     private Set<BookMarkAction> sessions = new HashSet<>();
 
+    public Long getStartFrom() {
+        return startFrom;
+    }
+
+    public User setStartFrom(Long startFrom) {
+        this.startFrom = startFrom;
+        return this;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public User setGender(Gender gender) {
+        this.gender = gender;
+        return this;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public User setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+        return this;
+    }
+
+    public City getCity() {
+        return city;
+    }
+
+    public User setCity(City city) {
+        this.city = city;
+        return this;
+    }
+
+    public Long getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public User setDateOfBirth(Long dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+        return this;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public User setHeight(int height) {
+        this.height = height;
+        return this;
+    }
+
+    public String getSportExperience() {
+        return sportExperience;
+    }
+
+    public User setSportExperience(String sportExperience) {
+        this.sportExperience = sportExperience;
+        return this;
+    }
 
     public Set<BookMarkAction> getSessions() {
         return sessions;

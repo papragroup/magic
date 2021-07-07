@@ -8,7 +8,6 @@ import com.papra.magicbody.service.dto.PracticeDTO;
 import com.papra.magicbody.service.mapper.PracticeMapper;
 import java.util.Optional;
 import java.util.function.Function;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -77,10 +76,12 @@ public class PracticeServiceImpl implements PracticeService {
     }
 
     private Function<Practice, PracticeDTO> getToDto() {
-        return p->{
+        return p -> {
             PracticeDTO practiceDTO = practiceMapper.toDto(p);
             practiceDTO.setPhotoUrl(minioServiceUtil.getLink(p.getPhotoUrl()));
             practiceDTO.setVoiceUrl(minioServiceUtil.getLink(p.getVoiceUrl()));
+            practiceDTO.setPhoto(null);
+            practiceDTO.setVoiceFile(null);
             return practiceDTO;
         };
     }

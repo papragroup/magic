@@ -1,7 +1,10 @@
 package com.papra.magicbody.service.impl;
 
 import com.papra.magicbody.domain.Action;
+import com.papra.magicbody.domain.SubCategory;
 import com.papra.magicbody.repository.ActionRepository;
+import com.papra.magicbody.repository.PracticeSessionRepository;
+import com.papra.magicbody.repository.SubCategoryRepository;
 import com.papra.magicbody.service.ActionService;
 import com.papra.magicbody.service.MinioServiceUtil;
 import com.papra.magicbody.service.dto.ActionDTO;
@@ -32,11 +35,21 @@ public class ActionServiceImpl implements ActionService {
 
     private final ActionMapper actionMapper;
     private final MinioServiceUtil minioServiceUtil;
+    private final SubCategoryRepository subCategoryRepository;
+    private final PracticeSessionRepository practiceSessionRepository;
 
-    public ActionServiceImpl(ActionRepository actionRepository, ActionMapper actionMapper, MinioServiceUtil minioServiceUtil) {
+    public ActionServiceImpl(
+        ActionRepository actionRepository,
+        ActionMapper actionMapper,
+        MinioServiceUtil minioServiceUtil,
+        SubCategoryRepository subCategoryRepository,
+        PracticeSessionRepository practiceSessionRepository
+    ) {
         this.actionRepository = actionRepository;
         this.actionMapper = actionMapper;
         this.minioServiceUtil = minioServiceUtil;
+        this.subCategoryRepository = subCategoryRepository;
+        this.practiceSessionRepository = practiceSessionRepository;
     }
 
     @Override
@@ -45,8 +58,16 @@ public class ActionServiceImpl implements ActionService {
         String photoFileName = minioServiceUtil.uploadFileToMinio(actionDTO.getPhoto());
         String videoFileName = minioServiceUtil.uploadFileToMinio(actionDTO.getVideo());
         Action action = actionMapper.toEntity(actionDTO);
+        if (actionDTO.getSession() != null) {
+            action.setSession(practiceSessionRepository.findById(actionDTO.getSession().getId()).get());
+        }
+        if (actionDTO.getSubCategory() != null) {
+            action.setSubCategory(subCategoryRepository.findById(actionDTO.getSubCategory().getId()).get());
+        }
         action.setPhotoUrl(photoFileName);
         action.setVideoUrl(videoFileName);
+        action.setPhoto(null);
+        action.setVideo(null);
         action = actionRepository.save(action);
         return actionMapper.toDto(action);
     }
@@ -74,18 +95,34 @@ public class ActionServiceImpl implements ActionService {
         return actionRepository.findAll(pageable).map(getToDto());
     }
 
+    @Override
+    public List<ActionDTO> findAllByCode(String param) {
+        log.debug("Request to get all Actions");
+        return actionRepository.findAllByCodeOrTitle(param, param).stream().map(getToDto()).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ActionDTO> findAllBySubCategoryId(Long subCategoryId, Pageable pageable) {
+        SubCategory subCategory = subCategoryRepository.findById(subCategoryId).get();
+        return actionRepository.findAllBySubCategory(subCategory, pageable).map(getToDto());
+    }
+
     private Function<Action, ActionDTO> getToDto() {
-         return a->{
-             ActionDTO actionDTO = actionMapper.toDto(a);
-             actionDTO.setPhotoUrl(minioServiceUtil.getLink(a.getPhotoUrl()));
-             actionDTO.setVideoUrl(minioServiceUtil.getLink(a.getVideoUrl()));
-             return actionDTO;
-         };
+        return a -> {
+            ActionDTO actionDTO = actionMapper.toDto(a);
+            actionDTO.setPhotoUrl(minioServiceUtil.getLink(a.getPhotoUrl()));
+            actionDTO.setVideoUrl(minioServiceUtil.getLink(a.getVideoUrl()));
+            actionDTO.setVideo(null);
+            actionDTO.setPhoto(null);
+            actionDTO.setSubCategory(null);
+            return actionDTO;
+        };
     }
 
     /**
-     *  Get all the actions where Action is {@code null}.
-     *  @return the list of entities.
+     * Get all the actions where Action is {@code null}.
+     *
+     * @return the list of entities.
      */
     @Transactional(readOnly = true)
     public List<ActionDTO> findAllWhereActionIsNull() {

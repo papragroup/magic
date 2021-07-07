@@ -1,17 +1,19 @@
 package com.papra.magicbody.service.impl;
 
+import com.papra.magicbody.domain.Action;
 import com.papra.magicbody.domain.BookMarkAction;
 import com.papra.magicbody.domain.User;
 import com.papra.magicbody.repository.BookMarkActionRepository;
 import com.papra.magicbody.repository.UserRepository;
 import com.papra.magicbody.security.SecurityUtils;
 import com.papra.magicbody.service.BookMarkActionService;
+import com.papra.magicbody.service.MinioServiceUtil;
 import com.papra.magicbody.service.dto.ActionDTO;
 import com.papra.magicbody.service.dto.BookMarkActionDTO;
 import com.papra.magicbody.service.mapper.ActionMapper;
 import com.papra.magicbody.service.mapper.BookMarkActionMapper;
-
 import java.util.Optional;
+import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +34,25 @@ public class BookMarkActionServiceImpl implements BookMarkActionService {
     private final BookMarkActionRepository bookMarkActionRepository;
 
     private final BookMarkActionMapper bookMarkActionMapper;
+    private final MinioServiceUtil minioServiceUtil;
 
     private final ActionMapper actionMapper;
 
-    public BookMarkActionServiceImpl(BookMarkActionRepository bookMarkActionRepository, BookMarkActionMapper bookMarkActionMapper, ActionMapper actionMapper) {
+    public BookMarkActionServiceImpl(
+        BookMarkActionRepository bookMarkActionRepository,
+        BookMarkActionMapper bookMarkActionMapper,
+        MinioServiceUtil minioServiceUtil,
+        ActionMapper actionMapper
+    ) {
         this.bookMarkActionRepository = bookMarkActionRepository;
         this.bookMarkActionMapper = bookMarkActionMapper;
+        this.minioServiceUtil = minioServiceUtil;
         this.actionMapper = actionMapper;
     }
 
     @Autowired
     private UserRepository userRepository;
+
     @Override
     public BookMarkActionDTO save(BookMarkActionDTO bookMarkActionDTO) {
         log.debug("Request to save BookMarkAction : {}", bookMarkActionDTO);
@@ -92,8 +102,26 @@ public class BookMarkActionServiceImpl implements BookMarkActionService {
     @Override
     public Page<ActionDTO> findAllByUser(Pageable pageable) {
         User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get();
-        return bookMarkActionRepository.findAllByUser(user,pageable).map(bm-> {
-            return actionMapper.toDto(bm.getAction());
-        });
+        return bookMarkActionRepository
+            .findAllByUser(user, pageable)
+            .map(
+                am -> {
+                    ActionDTO apply = getToDto().apply(am.getAction());
+                    apply.setBookMarkId(am.getId());
+                    return apply;
+                }
+            );
+    }
+
+    private Function<Action, ActionDTO> getToDto() {
+        return a -> {
+            ActionDTO actionDTO = actionMapper.toDto(a);
+            actionDTO.setPhotoUrl(minioServiceUtil.getLink(a.getPhotoUrl()));
+            actionDTO.setVideoUrl(minioServiceUtil.getLink(a.getVideoUrl()));
+            actionDTO.setVideo(null);
+            actionDTO.setPhoto(null);
+            actionDTO.setSubCategory(null);
+            return actionDTO;
+        };
     }
 }

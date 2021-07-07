@@ -7,7 +7,7 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link Practice} and its DTO {@link PracticeDTO}.
  */
-@Mapper(componentModel = "spring", uses = {})
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring", uses = {})
 public interface PracticeMapper extends EntityMapper<PracticeDTO, Practice> {
     @Named("id")
     @BeanMapping(ignoreByDefault = true)

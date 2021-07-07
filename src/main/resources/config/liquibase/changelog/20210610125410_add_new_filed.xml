@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <!--
+        Added the constraints for entity PracticeSession.
+    -->
+
+    <changeSet id="1" author="jhipster">
+
+       <addColumn tableName="jhi_user">
+           <column type="varchar(255)" name="start_from"/>
+       </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="varchar(255)" name="gender"/>
+        </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="varchar(255)" name="phone_number"/>
+        </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="varchar(255)" name="city"/>
+        </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="varchar(255)" name="sport_experience"/>
+        </addColumn>
+
+
+        <addColumn tableName="jhi_user">
+            <column type="bigint" name="height"/>
+        </addColumn>
+
+        <addColumn tableName="jhi_user">
+            <column type="bigint" name="date_of_birth"/>
+        </addColumn>
+
+    </changeSet>
+</databaseChangeLog>

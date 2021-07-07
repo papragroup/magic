@@ -33,6 +33,11 @@ public interface ActionService {
      * @return the list of entities.
      */
     Page<ActionDTO> findAll(Pageable pageable);
+
+    List<ActionDTO> findAllByCode(String param);
+
+    Page<ActionDTO> findAllBySubCategoryId(Long subCategoryId, Pageable pageable);
+
     /**
      * Get all the ActionDTO where Action is {@code null}.
      *

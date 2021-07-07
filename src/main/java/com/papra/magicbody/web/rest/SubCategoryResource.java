@@ -150,6 +150,17 @@ public class SubCategoryResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/sub-categories/by-category-id/{category-id}")
+    public ResponseEntity<List<SubCategoryDTO>> getAllSubCategoriesByCategoryId(
+        Pageable pageable,
+        @PathVariable("category-id") String categoryId
+    ) {
+        log.debug("REST request to get a page of SubCategories");
+        Page<SubCategoryDTO> page = subCategoryService.findAll(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
     /**
      * {@code GET  /sub-categories/:id} : get the "id" subCategory.
      *
